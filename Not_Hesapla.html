@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Not Hesapla</title>
+    <style>
+        /* --- TASARIM (CSS) KISMI --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px; /* Telefon genişliği */
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* Başlık Çubuğu */
+        .header {
+            background-color: #2196F3;
+            color: white;
+            padding: 30px 20px; /* Biraz daha geniş olsun */
+            text-align: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+
+        /* İsim ve Karşılama Tasarımı */
+        .header h1 { 
+            margin: 0; 
+            font-size: 28px; 
+            font-weight: bold; 
+            letter-spacing: 1px;
+        }
+        .header p { 
+            margin: 5px 0 0; 
+            font-size: 16px; 
+            opacity: 0.9; 
+        }
+
+        /* Sayfa İçeriği */
+        .content { padding: 20px; }
+
+        /* Butonlar */
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: 0.2s;
+        }
+
+        .btn-green { background-color: #4CAF50; color: white; }
+        .btn-blue { background-color: #2196F3; color: white; }
+        .btn-red { background-color: #ff4444; color: white; }
+        .btn-orange { background-color: #FF9800; color: white; }
+        .btn-gray { background-color: #607D8B; color: white; }
+
+        .btn:active { transform: scale(0.98); }
+
+        /* Kutucuklar (Input) */
+        input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        /* Ders Listesi Başlığı */
+        .list-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0 15px 5px;
+        }
+
+        /* Ders Listesi */
+        .ders-item {
+            background: #fff;
+            border: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+        .ders-item:hover { background-color: #f9f9f9; }
+
+        /* Ekranları Gizle/Göster */
+        .screen { display: none; }
+        .active { display: block; }
+
+        /* Sonuç Metni */
+        #sonucMetni {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div id="screen-list" class="screen active">
+        <div class="header">
+            <h1>Eren OKAT</h1>
+            <p>Not Hesaplama Sistemine</p>
+            <p style="font-weight: bold; margin-top: 5px;">Hoşgeldiniz</p>
+        </div>
+        <div class="content">
+            <button class="btn btn-green" style="height: 70px; font-size: 20px;" onclick="yeniDersEkle()">➕ DERS EKLE</button>
+            
+            <div class="list-title">Derslerim</div>
+            
+            <div id="dersListesiContainer">
+                </div>
+        </div>
+    </div>
+
+    <div id="screen-add" class="screen">
+        <div class="header" style="background-color: #4CAF50;">
+            <h1 id="baslik_ekle_duzenle">Ders Ayarları</h1>
+            <p>Yüzdeleri Belirleyin</p>
+        </div>
+        <div class="content">
+            <input type="text" id="inp_isim" placeholder="Dersin Adı (Örn: Matematik)">
+            
+            <p style="color:#666; font-size:14px; margin-bottom:5px;">Ağırlık Yüzdelerini Girin (Toplam 100 Olmalı)</p>
+            <input type="number" id="inp_vize" placeholder="Vize %">
+            <input type="number" id="inp_final" placeholder="Final %">
+            <input type="number" id="inp_proje" placeholder="Proje %">
+            <input type="number" id="inp_odev" placeholder="Ödev %">
+            <input type="number" id="inp_quiz1" placeholder="Quiz 1 %">
+            <input type="number" id="inp_quiz2" placeholder="Quiz 2 %">
+            <input type="number" id="inp_devam" placeholder="Devam %">
+
+            <button class="btn btn-green" onclick="dersiKaydet()">✓ KAYDET</button>
+            <button class="btn btn-gray" onclick="ekranDegistir('screen-list')">← İPTAL</button>
+        </div>
+    </div>
+
+    <div id="screen-calc" class="screen">
+        <div class="header" style="background-color: #2196F3;">
+            <h1 id="calc_baslik">Ders Adı</h1>
+            <p>Notlarınızı Girin</p>
+        </div>
+        <div class="content">
+            <div id="inputAlani"></div>
+
+            <button class="btn btn-blue" onclick="notuHesapla()">🔢 HESAPLA</button>
+            <div id="sonucMetni"></div>
+            
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+            
+            <button class="btn btn-orange" onclick="dersiDuzenle()">✏️ DÜZENLE</button>
+            <button class="btn btn-red" onclick="dersiSil()">🗑️ BU DERSİ SİL</button>
+            <button class="btn btn-gray" onclick="ekranDegistir('screen-list')">← GERİ</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    /* --- MANTIK (JAVASCRIPT) KISMI --- */
+    
+    let dersler = JSON.parse(localStorage.getItem('dersler')) || [];
+    let seciliDersId = null; 
+    let duzenlenecekDersId = null; 
+
+    // Uygulama açılınca listeyi yükle
+    listeyiYenile();
+
+    // Ekranlar arası geçiş
+    function ekranDegistir(ekranId) {
+        document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+        document.getElementById(ekranId).classList.add('active');
+    }
+
+    // Listeyi Ekrana Basma
+    function listeyiYenile() {
+        const container = document.getElementById('dersListesiContainer');
+        container.innerHTML = "";
+
+        if(dersler.length === 0) {
+            container.innerHTML = "<p style='text-align:center; color:#999; margin-top:20px;'>Henüz ders eklenmedi.</p>";
+            return;
+        }
+
+        dersler.forEach(ders => {
+            const div = document.createElement('div');
+            div.className = 'ders-item';
+            div.innerHTML = `<span><b>${ders.isim}</b></span> <span>➜</span>`;
+            div.onclick = () => hesaplamaEkraniniAc(ders.id);
+            container.appendChild(div);
+        });
+    }
+
+    // Yeni Ders Ekleme
+    function yeniDersEkle() {
+        formuTemizle();
+        duzenlenecekDersId = null; 
+        document.getElementById('baslik_ekle_duzenle').innerText = "Yeni Ders Ekle";
+        ekranDegistir('screen-add');
+    }
+
+    // Dersi Kaydet
+    function dersiKaydet() {
+        const isim = document.getElementById('inp_isim').value;
+        const vize = Number(document.getElementById('inp_vize').value);
+        const finalNot = Number(document.getElementById('inp_final').value);
+        const proje = Number(document.getElementById('inp_proje').value);
+        const odev = Number(document.getElementById('inp_odev').value);
+        const quiz1 = Number(document.getElementById('inp_quiz1').value);
+        const quiz2 = Number(document.getElementById('inp_quiz2').value);
+        const devam = Number(document.getElementById('inp_devam').value);
+
+        if (isim === "") {
+            alert("Lütfen ders adı girin!");
+            return;
+        }
+
+        const toplam = vize + finalNot + proje + odev + quiz1 + quiz2 + devam;
+
+        if (toplam !== 100) {
+            alert("HATA: Yüzdelerin toplamı 100 olmalıdır!\nŞu anki toplam: " + toplam);
+            return;
+        }
+
+        const dersVerisi = {
+            id: duzenlenecekDersId ? duzenlenecekDersId : Date.now(),
+            isim: isim,
+            weights: { vize, finalNot, proje, odev, quiz1, quiz2, devam }
+        };
+
+        if (duzenlenecekDersId) {
+            const index = dersler.findIndex(d => d.id === duzenlenecekDersId);
+            dersler[index] = dersVerisi;
+        } else {
+            dersler.push(dersVerisi);
+        }
+
+        veriyiKaydet();
+        listeyiYenile();
+        
+        if(duzenlenecekDersId) {
+             hesaplamaEkraniniAc(duzenlenecekDersId);
+        } else {
+             ekranDegistir('screen-list');
+        }
+    }
+
+    // Hesaplama Ekranını Açma
+    function hesaplamaEkraniniAc(id) {
+        seciliDersId = id;
+        const ders = dersler.find(d => d.id === id);
+        
+        document.getElementById('calc_baslik').innerText = ders.isim;
+        const inputContainer = document.getElementById('inputAlani');
+        inputContainer.innerHTML = "";
+        document.getElementById('sonucMetni').innerText = "";
+
+        ekleInputEgerVarsa(inputContainer, "Vize", ders.weights.vize, "val_vize");
+        ekleInputEgerVarsa(inputContainer, "Final", ders.weights.finalNot, "val_final");
+        ekleInputEgerVarsa(inputContainer, "Proje", ders.weights.proje, "val_proje");
+        ekleInputEgerVarsa(inputContainer, "Ödev", ders.weights.odev, "val_odev");
+        ekleInputEgerVarsa(inputContainer, "Quiz 1", ders.weights.quiz1, "val_quiz1");
+        ekleInputEgerVarsa(inputContainer, "Quiz 2", ders.weights.quiz2, "val_quiz2");
+        ekleInputEgerVarsa(inputContainer, "Devam", ders.weights.devam, "val_devam");
+
+        ekranDegistir('screen-calc');
+    }
+
+    function dersiDuzenle() {
+        duzenlenecekDersId = seciliDersId;
+        const ders = dersler.find(d => d.id === seciliDersId);
+
+        document.getElementById('baslik_ekle_duzenle').innerText = "Dersi Düzenle";
+        document.getElementById('inp_isim').value = ders.isim;
+        document.getElementById('inp_vize').value = sifirsaBos(ders.weights.vize);
+        document.getElementById('inp_final').value = sifirsaBos(ders.weights.finalNot);
+        document.getElementById('inp_proje').value = sifirsaBos(ders.weights.proje);
+        document.getElementById('inp_odev').value = sifirsaBos(ders.weights.odev);
+        document.getElementById('inp_quiz1').value = sifirsaBos(ders.weights.quiz1);
+        document.getElementById('inp_quiz2').value = sifirsaBos(ders.weights.quiz2);
+        document.getElementById('inp_devam').value = sifirsaBos(ders.weights.devam);
+
+        ekranDegistir('screen-add');
+    }
+
+    function ekleInputEgerVarsa(container, etiket, yuzde, inputId) {
+        if (yuzde > 0) {
+            const inp = document.createElement('input');
+            inp.type = "number";
+            inp.id = inputId;
+            inp.placeholder = `${etiket} Notunuz (%${yuzde})`;
+            container.appendChild(inp);
+        }
+    }
+
+    function notuHesapla() {
+        const ders = dersler.find(d => d.id === seciliDersId);
+        let toplamPuan = 0;
+
+        toplamPuan += puanGetir("val_vize") * ders.weights.vize / 100;
+        toplamPuan += puanGetir("val_final") * ders.weights.finalNot / 100;
+        toplamPuan += puanGetir("val_proje") * ders.weights.proje / 100;
+        toplamPuan += puanGetir("val_odev") * ders.weights.odev / 100;
+        toplamPuan += puanGetir("val_quiz1") * ders.weights.quiz1 / 100;
+        toplamPuan += puanGetir("val_quiz2") * ders.weights.quiz2 / 100;
+        toplamPuan += puanGetir("val_devam") * ders.weights.devam / 100;
+
+        document.getElementById('sonucMetni').innerText = "ORTALAMA: " + toplamPuan.toFixed(2);
+    }
+
+    function puanGetir(id) {
+        const el = document.getElementById(id);
+        if (el && el.value !== "") return Number(el.value);
+        return 0;
+    }
+
+    function dersiSil() {
+        if(confirm("Bu dersi silmek istediğine emin misin?")) {
+            dersler = dersler.filter(d => d.id !== seciliDersId);
+            veriyiKaydet();
+            listeyiYenile();
+            ekranDegistir('screen-list');
+        }
+    }
+
+    function veriyiKaydet() {
+        localStorage.setItem('dersler', JSON.stringify(dersler));
+    }
+
+    function formuTemizle() {
+        document.querySelectorAll('input').forEach(i => i.value = "");
+    }
+
+    function sifirsaBos(deger) {
+        return deger === 0 ? "" : deger;
+    }
+</script>
+
+</body>
+</html>
